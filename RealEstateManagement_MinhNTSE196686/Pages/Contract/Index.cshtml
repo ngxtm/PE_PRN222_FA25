@@ -1,0 +1,152 @@
+﻿@page
+@model RealEstateManagement_MinhNTSE196686.Pages.Contract.IndexModel
+
+@{
+    ViewData["Title"] = "Contract List";
+}
+
+<h1>Contract Management</h1>
+
+@if (Model.UserRole == 1 || Model.UserRole == 2)
+{
+    <p>
+        <a asp-page="Create" class="btn btn-primary">Create New</a>
+    </p>
+}
+
+<form method="get" class="mb-3 p-3 border rounded bg-light">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Contract Title:</label>
+            <input asp-for="SearchTitle" class="form-control" placeholder="Relative search..." />
+        </div>
+        <div class="col-md-3">
+            <label>Contract Type:</label>
+            <input asp-for="SearchType" class="form-control" placeholder="Relative search..." />
+        </div>
+        <div class="col-md-3">
+            <label>Signing Date:</label>
+            <input asp-for="SearchDate" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-info w-100">Search</button>
+        </div>
+    </div>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].ContractTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].PropertyType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].SigningDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].ExpirationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].Value)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Contract[0].Broker)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        @if (Model.Contract != null && Model.Contract.Count > 0)
+        {
+            @foreach (var item in Model.Contract)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContractTitle)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PropertyType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SigningDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ExpirationDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Value)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Broker.FullName)
+                    </td>
+                    <td>
+                        <a asp-page="./Details" asp-route-id="@item.ContractId">Details</a>
+                        @if (Model.UserRole == 1 || Model.UserRole == 2)
+                        {
+                            <span> | </span>
+                            <a asp-page="./Edit" asp-route-id="@item.ContractId">Edit</a>
+                            <span> | </span>
+                            <a asp-page = "./Delete" asp-route-id="@item.ContractId">Delete</a>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-danger">No contracts found matching your search.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    @if (Model.PageIndex > 1)
+    {
+        <a asp-page="./Index"
+           asp-route-pageIndex="@(Model.PageIndex - 1)"
+           asp-route-SearchTitle="@Model.SearchTitle"
+           asp-route-SearchType="@Model.SearchType"
+           asp-route-SearchDate="@Model.SearchDate?.ToString("yyyy-MM-dd")"
+           class="btn btn-outline-secondary">Previous</a>
+    }
+
+    <span class="mx-2">Page @Model.PageIndex of @Model.TotalPages</span>
+
+    @if (Model.PageIndex < Model.TotalPages)
+    {
+        <a asp-page="./Index"
+           asp-route-pageIndex="@(Model.PageIndex + 1)"
+           asp-route-SearchTitle="@Model.SearchTitle"
+           asp-route-SearchType="@Model.SearchType"
+           asp-route-SearchDate="@Model.SearchDate?.ToString("yyyy-MM-dd")"
+           class="btn btn-outline-secondary">Next</a>
+    }
+</div>
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/signalRServer").build();
+
+    connection.start().then(function () {
+        console.log("SignalR Connected!");
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    connection.on("LoadData", function () {
+        fetch('/Contract/Index?handler=Start')
+            .then(response => response.text())
+            .then(html => {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var newBody = doc.getElementById('tableBody').innerHTML;
+
+                document.getElementById('tableBody').innerHTML = newBody;
+            });
+    });
+</script>
