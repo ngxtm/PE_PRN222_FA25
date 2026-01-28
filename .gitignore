@@ -1,8 +1,35 @@
+# Build
 bin/
 obj/
+
+# Visual Studio
 .vs/
 *.user
+*.suo
+*.csproj.user
+
+# User secrets
 appsettings.Development.json
+secrets.json
+
+# Packages
+packages/
+
+# Database (if using LocalDB/SQLite)
+*.mdf
+*.ldf
+*.db
+
+# Logs
+logs/
+*.log
+
+# Publish
+publish/
+
+# IDE
+.idea/
+*.DotSettings.user
 
 .claude/
 plans/

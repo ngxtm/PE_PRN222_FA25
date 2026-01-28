@@ -56,9 +56,7 @@ namespace RealEstateManagement_MinhNTSE196686.Pages.Contract
                 );
             }
 
-            query = query.OrderBy(c => c.ContractTitle)
-                     .ThenBy(c => c.PropertyType)
-                     .ThenBy(c => c.SigningDate);
+            query = query.OrderByDescending(c => c.ContractId);
 
 
             int totalCount = query.Count();
@@ -75,9 +73,7 @@ namespace RealEstateManagement_MinhNTSE196686.Pages.Contract
         public IActionResult OnGetStart()
         {
             Contract = _contractService.GetAll(includeProperties: "Broker")
-                                       .OrderBy(c => c.ContractTitle)
-                                       .ThenBy(c => c.PropertyType)
-                                       .ThenBy(c => c.SigningDate)
+                                       .OrderByDescending(c => c.ContractId)
                                        .ToList();
 
             return Page();
